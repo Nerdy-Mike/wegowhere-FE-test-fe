@@ -1,4 +1,4 @@
-import { Text } from "react-native";
+import { Text, StyleSheet } from "react-native";
 import clsx from "clsx";
 
 interface IAppTitleProps {
@@ -6,7 +6,9 @@ interface IAppTitleProps {
 }
 
 export const AppTitle = ({ title }: IAppTitleProps) => {
-  return <Text className={clsx("text-title font-bold")}>{title}</Text>;
+  return (
+    <Text className={clsx("text-title font-bold font-[Regular]")}>{title}</Text>
+  );
 };
 
 export default AppTitle;

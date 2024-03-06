@@ -55,9 +55,17 @@ export const RootNavigator = () => {
           <RootStack.Screen
             name="AddCardScreen"
             component={AddCardScreen}
-            options={{
+            options={({ navigation }) => ({
               headerShown: true,
-            }}
+              headerTitle: () => <ScreenTitle title="" />,
+              headerLeft: () => (
+                <NavButton
+                  text="Back"
+                  onPress={() => navigation.goBack()}
+                  withBackIcon
+                />
+              ),
+            })}
           />
         </RootStack.Group>
       </RootStack.Navigator>
