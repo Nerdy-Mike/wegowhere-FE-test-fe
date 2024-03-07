@@ -12,9 +12,15 @@ import HomeScreen from "@/screens/HomeScreen";
 import CardScreen from "@/screens/CardScreen";
 import AddCardScreen from "@/screens/AddCardScreen";
 
+/* Import Modals */
+import PayModal from "@/components/Modals/PayModal";
+
 /* Import Components */
 import NavButton from "@/components/TopNav/NavButton";
 import ScreenTitle from "@/components/TopNav/ScreenTitle";
+
+/*Assets */
+import AddIcon from "@/assets/svg/add-icon.svg";
 
 const RootStack = createNativeStackNavigator<RootStackParamList>();
 
@@ -28,6 +34,24 @@ export const RootNavigator = () => {
           headerShown: false,
         }}
       >
+        <RootStack.Group screenOptions={{ presentation: "modal" }}>
+          <RootStack.Screen
+            name="PayModal"
+            component={PayModal}
+            options={({ navigation }) => ({
+              headerShown: true,
+              headerTitle: () => <ScreenTitle title="Pay" />,
+              headerLeft: () => (
+                <NavButton
+                  text="Close"
+                  onPress={() => navigation.goBack()}
+                  withBackIcon
+                />
+              ),
+            })}
+          />
+        </RootStack.Group>
+
         <RootStack.Group>
           <RootStack.Screen
             name="HomeScreen"
@@ -48,6 +72,13 @@ export const RootNavigator = () => {
                   text="Back"
                   onPress={() => navigation.goBack()}
                   withBackIcon
+                />
+              ),
+              headerRight: () => (
+                <NavButton
+                  onPress={() => navigation.navigate("AddCardScreen")}
+                  withIcon
+                  icon={<AddIcon />}
                 />
               ),
             })}

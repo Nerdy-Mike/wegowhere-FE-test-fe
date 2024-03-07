@@ -1,7 +1,7 @@
 import { Button, StyleSheet, Text, View } from "react-native";
 
-import { useTypedNavigation } from "@/hooks/navigation";
 import ScrollContainer from "@/components/ScrollContainer";
+import { useTypedNavigation } from "@/hooks/navigation";
 
 export default function HomeScreen() {
   const navigation = useTypedNavigation();

@@ -5,10 +5,14 @@ import {
   Image,
   KeyboardAvoidingView,
   Platform,
+  Alert,
 } from "react-native";
 import { useForm, Controller } from "react-hook-form";
-
+import { Buffer } from "buffer";
 import { yupResolver } from "@hookform/resolvers/yup";
+
+/* Lib */
+import { addCardKeychain, retrieveDataKeychain } from "@/lib/keychain";
 
 /* Validators */
 import CardInputValidationSchema from "@/validators/CardInputValidator";
@@ -21,6 +25,73 @@ import CardExpiryDateInput from "./FormInputs/ExpireDateInput";
 
 /* Assets */
 import SecurePaymentSvg from "@/assets/svg/secure_payment.svg";
+
+async function createCustomerAndCard() {
+  const apiUrl = "https://api.omise.co/customers";
+  const publicKey = "skey_test_5wvisdjjoqmfof5npzw"; // Replace with your Omise public key
+
+  const requestBody = {
+    card: "tokn_test_5z06r3cxa51tf6ul3sa",
+    description: "Test 1",
+    email: "test@gmail.com",
+    metadata: {},
+  };
+
+  try {
+    const response = await fetch(apiUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization:
+          "Basic " + Buffer.from(publicKey + ":").toString("base64"),
+      },
+      body: JSON.stringify(requestBody),
+    });
+
+    const responseData = await response.json();
+    console.log("Response:", responseData.cards.data);
+    // Handle the response data as needed
+  } catch (error) {
+    console.error("Error:", error);
+    // Handle errors
+  }
+}
+
+async function createCustomer(
+  cardToken: string,
+  description: string,
+  email: string,
+  metadata: object
+) {
+  try {
+    const response = await fetch("https://api.omise.co/customers", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Basic " + btoa("YOUR_OMISE_SECRET_KEY" + ":"), // replace 'YOUR_OMISE_SECRET_KEY' with your actual secret key
+      },
+      body: JSON.stringify({
+        card: "tokn_test_5z06nf00vujyflsohma",
+        description: "Test 1",
+        email: "test@gmail.com",
+        metadata: {},
+      }),
+    });
+
+    const responseData = await response.json();
+
+    if (!response.ok) {
+      Alert.alert("Error", responseData.message);
+      return;
+    }
+
+    console.log("Customer created:", responseData);
+    // Handle the response data as needed
+  } catch (error) {
+    console.error("Error:", error);
+    // Handle errors
+  }
+}
 
 const CreditCardForm: React.FC = () => {
   const {
@@ -44,8 +115,18 @@ const CreditCardForm: React.FC = () => {
     reValidateMode: "onChange",
   });
 
-  const onSubmit = (data: any) => {
-    console.log("form submitted", data);
+  const onSubmit = async (data: {
+    cardNumber: string;
+    name: string;
+    expiration: string;
+    cvv: string;
+  }) => {
+    addCardKeychain(process.env.APP_KEYCHAIN_SECRET as string, {
+      name: data.name,
+      cardNumber: data.cardNumber,
+      expiry: data.expiration,
+      cvv: data.cvv,
+    });
   };
 
   return (

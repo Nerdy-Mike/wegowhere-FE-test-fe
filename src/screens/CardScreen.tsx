@@ -1,11 +1,19 @@
-import React from "react";
-import { View, Text, Image } from "react-native";
+import React, { useEffect, useState } from "react";
+import { Image, Text, View } from "react-native";
 
+/* Lib */
+import { retrieveDataKeychain } from "@/lib/keychain";
+
+/* Type */
+import type { UserCard } from "@/types/UserCard";
+
+/* Components */
+import { Card } from "@/components/Cards/Card";
 import { Button } from "@/components/Buttons/Button";
 
 /* Hooks */
-import { useTypedNavigation } from "@/hooks/navigation";
 import ScrollContainer from "@/components/ScrollContainer";
+import { useTypedNavigation } from "@/hooks/navigation";
 
 const NoCardFound = () => {
   const navigation = useTypedNavigation();
@@ -30,11 +38,40 @@ const NoCardFound = () => {
 };
 
 const CardScreen = () => {
-  return (
-    <ScrollContainer>
-      <NoCardFound />
-    </ScrollContainer>
-  );
+  const [userCards, setUserCards] = useState<UserCard[]>([]);
+
+  useEffect(() => {
+    const getUserCards = async () => {
+      const cards = await retrieveDataKeychain(
+        process.env.APP_KEYCHAIN_SECRET as string
+      );
+      if (cards) {
+        setUserCards(cards);
+      }
+    };
+
+    getUserCards();
+  }, []);
+
+  if (userCards === null) {
+    return <Text>Loading...</Text>;
+  } else if (userCards === undefined) {
+    return (
+      <ScrollContainer>
+        <NoCardFound />
+      </ScrollContainer>
+    );
+  } else {
+    return (
+      <ScrollContainer>
+        <View className="flex items-center justify-center">
+          {userCards.map((card, index) => (
+            <Card key={index} card={card} />
+          ))}
+        </View>
+      </ScrollContainer>
+    );
+  }
 };
 
 export default CardScreen;
