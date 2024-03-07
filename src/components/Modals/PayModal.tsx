@@ -58,15 +58,35 @@ const PayModal = ({ route }: IPayModalProps) => {
   const handlePay = async (data: any) => {
     setLoading(true);
     try {
-      const response = await axios.post("http://localhost:3000/omise/charges", {
-        amount: data.amount,
-        card: cardInfo,
+      const token = await Omise.createToken({
+        card: {
+          name: cardInfo.name,
+          number: cardInfo.cardNumber,
+          expiration_month: cardInfo.expiry.split("/")[0],
+          expiration_year: cardInfo.expiry.split("/")[1],
+          security_code: cardInfo.cvv,
+        },
       });
+
+      let tokenId = token.id;
+      const response = await axios.post(
+        `${process.env.APP_BACKEND_URL}/omise/charges`,
+        {
+          amount: data.amount,
+          tokenID: tokenId,
+        }
+      );
 
       if (response.data.status === "successful") {
         navigation.goBack();
         GlobalDialogController.showModal({
           title: "Payment Successful",
+          button: "OK",
+        });
+      } else if (response.data.status === "pending") {
+        GlobalDialogController.showModal({
+          title: "Payment Pending",
+          message: "Please check your email for payment confirmation",
           button: "OK",
         });
       }
