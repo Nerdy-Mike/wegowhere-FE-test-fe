@@ -22,7 +22,7 @@ export const Card: React.FC<CardProps> = ({ card }) => {
     navigation.navigate("PayModal", { cardInfo: card });
   };
   return (
-    <TouchableOpacity onPress={handleCardPress} className="h-full w-full">
+    <TouchableOpacity onPress={handleCardPress} className="flex-1">
       <View style={[styles.card, styles.shadowProp]}>
         <View className="flex flex-row gap-6 justify-start items-center">
           <DotSvg />

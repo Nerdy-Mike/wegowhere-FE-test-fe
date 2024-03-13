@@ -14,6 +14,7 @@ import { Button } from "@/components/Buttons/Button";
 /* Hooks */
 import ScrollContainer from "@/components/ScrollContainer";
 import { useTypedNavigation } from "@/hooks/navigation";
+import { useFocusEffect } from "@react-navigation/native";
 
 const NoCardFound = () => {
   const navigation = useTypedNavigation();
@@ -40,18 +41,24 @@ const NoCardFound = () => {
 const CardScreen = () => {
   const [userCards, setUserCards] = useState<UserCard[]>([]);
 
-  useEffect(() => {
-    const getUserCards = async () => {
-      const cards = await retrieveDataKeychain(
-        process.env.APP_KEYCHAIN_SECRET as string
-      );
-      if (cards) {
-        setUserCards(cards);
-      }
-    };
+  useFocusEffect(
+    React.useCallback(() => {
+      const getUserCards = async () => {
+        const cards = await retrieveDataKeychain(
+          process.env.APP_KEYCHAIN_SECRET as string
+        );
+        if (cards) {
+          setUserCards(cards);
+        }
+      };
 
-    getUserCards();
-  }, []);
+      getUserCards();
+
+      return () => {
+        setUserCards([]);
+      };
+    }, [])
+  );
 
   if (userCards === null) {
     return <Text>Loading...</Text>;
@@ -64,7 +71,7 @@ const CardScreen = () => {
   } else {
     return (
       <ScrollContainer>
-        <View className="flex items-center justify-center">
+        <View className="flex-1 flex flex-col ">
           {userCards.map((card, index) => (
             <Card key={index} card={card} />
           ))}
